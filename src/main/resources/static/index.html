@@ -18,19 +18,26 @@
 </head>
 <body onload="app.init()">
     <div class="container">
-        <h1>Collaborative Paint - Part I</h1>
+        <h1>Collaborative Paint - Part II</h1>
+        <p class="instructions">Click on the canvas to draw points. All connected clients will see your drawing in real-time!</p>
 
-        <div class="controls">
-            <label for="x">X:</label>
-            <input id="x" type="number" min="0" max="800" placeholder="X coordinate"/>
+        <!-- Optional manual controls (kept for testing) -->
+        <details class="controls-toggle">
+            <summary>Manual Input (Optional)</summary>
+            <div class="controls">
+                <label for="x">X:</label>
+                <input id="x" type="number" min="0" max="800" placeholder="X coordinate" value="100"/>
 
-            <label for="y">Y:</label>
-            <input id="y" type="number" min="0" max="600" placeholder="Y coordinate"/>
+                <label for="y">Y:</label>
+                <input id="y" type="number" min="0" max="600" placeholder="Y coordinate" value="100"/>
 
-            <button onclick="app.publishPoint($('#x').val(),$('#y').val())">Send point</button>
+                <button onclick="app.publishPoint($('#x').val(),$('#y').val())">Send point</button>
+            </div>
+        </details>
+
+        <div class="canvas-container">
+            <canvas id="canvas" width="800" height="600"></canvas>
         </div>
-
-        <canvas id="canvas" width="800" height="600"></canvas>
     </div>
 </body>
 </html>

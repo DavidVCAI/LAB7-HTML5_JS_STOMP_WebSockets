@@ -73,3 +73,62 @@ h1 {
     cursor: crosshair;
     display: block;
 }
+
+/* Part II Enhancements */
+
+.instructions {
+    background-color: #e7f3ff;
+    padding: 12px;
+    border-left: 4px solid #007bff;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #004085;
+}
+
+.controls-toggle {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #fafafa;
+}
+
+.controls-toggle summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #666;
+    user-select: none;
+}
+
+.controls-toggle summary:hover {
+    color: #007bff;
+}
+
+.canvas-container {
+    position: relative;
+    display: inline-block;
+}
+
+#canvas {
+    border: 2px solid #333;
+    background-color: white;
+    cursor: crosshair;
+    display: block;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+#canvas:hover {
+    border-color: #007bff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 850px) {
+    .container {
+        padding: 10px;
+    }
+
+    #canvas {
+        width: 100%;
+        height: auto;
+    }
+}

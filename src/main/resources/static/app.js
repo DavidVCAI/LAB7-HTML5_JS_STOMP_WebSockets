@@ -57,6 +57,52 @@ var app = (function () {
     };
 
     /**
+     * Sets up mouse event handlers on the canvas for interactive drawing.
+     * Captures clicks and publishes points to all connected clients.
+     */
+    var setupCanvasEvents = function () {
+        var canvas = document.getElementById("canvas");
+
+        // Add click event listener
+        canvas.addEventListener('click', function (event) {
+            if (stompClient === null || !stompClient.connected) {
+                alert('Not connected to WebSocket. Please refresh the page.');
+                return;
+            }
+
+            // Get mouse position relative to canvas
+            var position = getMousePosition(event);
+            var pt = new Point(Math.round(position.x), Math.round(position.y));
+
+            console.info("Publishing point at " + JSON.stringify(pt));
+
+            // Draw point on local canvas immediately
+            addPointToCanvas(pt);
+
+            // Publish the point to /topic/newpoint so all subscribers receive it
+            stompClient.send("/topic/newpoint", {}, JSON.stringify(pt));
+        });
+
+        // Add pointer event for better cross-platform support (touch, pen, mouse)
+        canvas.addEventListener('pointerdown', function (event) {
+            if (stompClient === null || !stompClient.connected) {
+                return;
+            }
+
+            // Prevent default to avoid triggering click event twice
+            event.preventDefault();
+
+            var position = getMousePosition(event);
+            var pt = new Point(Math.round(position.x), Math.round(position.y));
+
+            console.info("Publishing point (pointer) at " + JSON.stringify(pt));
+
+            addPointToCanvas(pt);
+            stompClient.send("/topic/newpoint", {}, JSON.stringify(pt));
+        });
+    };
+
+    /**
      * Establishes WebSocket connection and subscribes to the newpoint topic.
      * Sets up STOMP over SockJS for real-time message handling.
      */
@@ -77,8 +123,7 @@ var app = (function () {
                 var theObject = JSON.parse(eventbody.body);
                 addPointToCanvas(theObject);
 
-                // Show alert with received coordinates (Part I requirement)
-                alert('Point received - X: ' + theObject.x + ', Y: ' + theObject.y);
+                // Part II: No more alerts, just draw the point
             });
         });
     };
@@ -86,26 +131,34 @@ var app = (function () {
     return {
         /**
          * Initializes the application.
-         * Sets up WebSocket connection when page loads.
+         * Sets up WebSocket connection and canvas event handlers when page loads.
          */
         init: function () {
             var canvas = document.getElementById("canvas");
-            console.log("Initializing Collaborative Paint Application...");
+            console.log("Initializing Collaborative Paint Application - Part II...");
 
             // Establish WebSocket connection
             connectAndSubscribe();
+
+            // Setup canvas mouse/pointer events
+            setupCanvasEvents();
         },
 
         /**
          * Publishes a point to all connected clients via WebSocket.
-         * Draws the point locally and broadcasts it through STOMP.
+         * Now primarily used by canvas events, but kept for backward compatibility.
          *
          * @param {number} px - X coordinate
          * @param {number} py - Y coordinate
          */
         publishPoint: function (px, py) {
-            var pt = new Point(px, py);
-            console.info("Publishing point at " + pt);
+            if (stompClient === null || !stompClient.connected) {
+                alert('Not connected to WebSocket. Please refresh the page.');
+                return;
+            }
+
+            var pt = new Point(parseInt(px), parseInt(py));
+            console.info("Publishing point at " + JSON.stringify(pt));
 
             // Draw point on local canvas
             addPointToCanvas(pt);

@@ -1,38 +1,36 @@
 <!DOCTYPE html>
-<!--
-Copyright (C) 2016 Pivotal Software, Inc.
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Paint - WebSockets Lab</title>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+    <!-- WebJars Dependencies -->
+    <script src="/webjars/jquery/jquery.min.js"></script>
+    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+    <!-- Application Scripts -->
+    <script src="/app.js"></script>
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
--->
-<html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="/webjars/jquery/jquery.min.js"></script>
-        <script src="/webjars/sockjs-client/sockjs.min.js"></script>
-        <script src="/webjars/stomp-websocket/stomp.min.js"></script>
-        <script src="/app.js"></script>
+    <!-- Styles -->
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body onload="app.init()">
+    <div class="container">
+        <h1>Collaborative Paint - Part I</h1>
 
-    </head>
+        <div class="controls">
+            <label for="x">X:</label>
+            <input id="x" type="number" min="0" max="800" placeholder="X coordinate"/>
 
+            <label for="y">Y:</label>
+            <input id="y" type="number" min="0" max="600" placeholder="Y coordinate"/>
 
-    
-    <body onload="app.init()">
-        X:<input id="x" type="number"/>
-        Y:<input id="y" type="number"/>        
-        <button onclick="app.publishPoint($('#x').val(),$('#y').val())">Send point</button>
+            <button onclick="app.publishPoint($('#x').val(),$('#y').val())">Send point</button>
+        </div>
+
         <canvas id="canvas" width="800" height="600"></canvas>
-    </body>
+    </div>
+</body>
 </html>

@@ -54,6 +54,46 @@ var app = (function () {
     };
 
     /**
+     * Draws a filled polygon on the canvas.
+     *
+     * @param {Polygon} polygon - Object with points array property
+     */
+    var addPolygonToCanvas = function (polygon) {
+        if (!polygon || !polygon.points || polygon.points.length < 3) {
+            console.warn('Invalid polygon received:', polygon);
+            return;
+        }
+
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+
+        console.log('Drawing polygon with ' + polygon.points.length + ' points');
+
+        // Begin path for polygon
+        ctx.beginPath();
+        ctx.moveTo(polygon.points[0].x, polygon.points[0].y);
+
+        // Draw lines to each subsequent point
+        for (var i = 1; i < polygon.points.length; i++) {
+            ctx.lineTo(polygon.points[i].x, polygon.points[i].y);
+        }
+
+        // Close the polygon path
+        ctx.closePath();
+
+        // Fill the polygon with semi-transparent color
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.3)'; // Red with 30% opacity
+        ctx.fill();
+
+        // Draw border
+        ctx.strokeStyle = '#ff0000'; // Red border
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        console.log('Polygon drawn successfully');
+    };
+
+    /**
      * Gets the mouse position relative to the canvas.
      *
      * @param {Event} evt - The mouse event
@@ -92,8 +132,8 @@ var app = (function () {
             addPointToCanvas(pt);
 
             // Publish to dynamic topic: /topic/newpoint.{drawingId}
-            var topic = '/topic/newpoint.' + currentDrawingId;
-            stompClient.send(topic, {}, JSON.stringify(pt));
+            var appDestination = '/app/newpoint.' + currentDrawingId;
+            stompClient.send(appDestination, {}, JSON.stringify(pt));
         });
 
         // Add pointer event for better cross-platform support
@@ -110,8 +150,8 @@ var app = (function () {
             console.info("Publishing point (pointer) to drawing " + currentDrawingId + ": " + JSON.stringify(pt));
 
             addPointToCanvas(pt);
-            var topic = '/topic/newpoint.' + currentDrawingId;
-            stompClient.send(topic, {}, JSON.stringify(pt));
+            var appDestination = '/app/newpoint.' + currentDrawingId;
+            stompClient.send(appDestination, {}, JSON.stringify(pt));
         });
     };
 
@@ -191,6 +231,30 @@ var app = (function () {
                 addPointToCanvas(theObject);
             });
 
+            // Subscribe to dynamic topic: /topic/newpoint.{drawingId}
+            var topic = '/topic/newpoint.' + drawingId;
+            console.log('Subscribing to topic: ' + topic);
+
+            stompClient.subscribe(topic, function (eventbody) {
+                console.log('Received point event on ' + topic + ':', eventbody.body);
+
+                // Parse the received point and draw it on canvas
+                var theObject = JSON.parse(eventbody.body);
+                addPointToCanvas(theObject);
+            });
+
+            // AGREGAR ESTO: Subscribe to polygon topic
+            var polygonTopic = '/topic/newpolygon.' + drawingId;
+            console.log('Subscribing to polygon topic: ' + polygonTopic);
+
+            stompClient.subscribe(polygonTopic, function (eventbody) {
+                console.log('Received polygon event on ' + polygonTopic + ':', eventbody.body);
+
+                // Parse the received polygon and draw it on canvas
+                var polygon = JSON.parse(eventbody.body);
+                addPolygonToCanvas(polygon);
+            });
+
             console.log('Successfully subscribed to drawing: ' + drawingId);
         }, function(error) {
             console.error('WebSocket connection error:', error);
@@ -258,8 +322,8 @@ var app = (function () {
             addPointToCanvas(pt);
 
             // Publish to dynamic topic
-            var topic = '/topic/newpoint.' + currentDrawingId;
-            stompClient.send(topic, {}, JSON.stringify(pt));
+            var appDestination = '/app/newpoint.' + currentDrawingId;
+            stompClient.send(appDestination, {}, JSON.stringify(pt));
         },
 
         /**

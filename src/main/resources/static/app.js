@@ -25,6 +25,18 @@ var app = (function () {
     var stompClient = null;
 
     /**
+     * Current drawing identifier.
+     * @private
+     */
+    var currentDrawingId = null;
+
+    /**
+     * Flag indicating if currently connected to WebSocket.
+     * @private
+     */
+    var isConnected = false;
+
+    /**
      * Draws a point on the canvas as a small circle.
      *
      * @param {Point} point - The point to draw with x and y coordinates
@@ -58,15 +70,15 @@ var app = (function () {
 
     /**
      * Sets up mouse event handlers on the canvas for interactive drawing.
-     * Captures clicks and publishes points to all connected clients.
+     * Captures clicks and publishes points to the current drawing topic.
      */
     var setupCanvasEvents = function () {
         var canvas = document.getElementById("canvas");
 
         // Add click event listener
         canvas.addEventListener('click', function (event) {
-            if (stompClient === null || !stompClient.connected) {
-                alert('Not connected to WebSocket. Please refresh the page.');
+            if (!isConnected || currentDrawingId === null) {
+                alert('Please connect to a drawing first!');
                 return;
             }
 
@@ -74,107 +86,195 @@ var app = (function () {
             var position = getMousePosition(event);
             var pt = new Point(Math.round(position.x), Math.round(position.y));
 
-            console.info("Publishing point at " + JSON.stringify(pt));
+            console.info("Publishing point to drawing " + currentDrawingId + ": " + JSON.stringify(pt));
 
             // Draw point on local canvas immediately
             addPointToCanvas(pt);
 
-            // Publish the point to /topic/newpoint so all subscribers receive it
-            stompClient.send("/topic/newpoint", {}, JSON.stringify(pt));
+            // Publish to dynamic topic: /topic/newpoint.{drawingId}
+            var topic = '/topic/newpoint.' + currentDrawingId;
+            stompClient.send(topic, {}, JSON.stringify(pt));
         });
 
-        // Add pointer event for better cross-platform support (touch, pen, mouse)
+        // Add pointer event for better cross-platform support
         canvas.addEventListener('pointerdown', function (event) {
-            if (stompClient === null || !stompClient.connected) {
+            if (!isConnected || currentDrawingId === null) {
                 return;
             }
 
-            // Prevent default to avoid triggering click event twice
             event.preventDefault();
 
             var position = getMousePosition(event);
             var pt = new Point(Math.round(position.x), Math.round(position.y));
 
-            console.info("Publishing point (pointer) at " + JSON.stringify(pt));
+            console.info("Publishing point (pointer) to drawing " + currentDrawingId + ": " + JSON.stringify(pt));
 
             addPointToCanvas(pt);
-            stompClient.send("/topic/newpoint", {}, JSON.stringify(pt));
+            var topic = '/topic/newpoint.' + currentDrawingId;
+            stompClient.send(topic, {}, JSON.stringify(pt));
         });
     };
 
     /**
-     * Establishes WebSocket connection and subscribes to the newpoint topic.
-     * Sets up STOMP over SockJS for real-time message handling.
+     * Updates the UI elements based on connection state.
+     *
+     * @param {boolean} connected - True if connected, false otherwise
      */
-    var connectAndSubscribe = function () {
-        console.info('Connecting to WebSocket...');
+    var updateConnectionUI = function (connected) {
+        var connectBtn = document.getElementById('connectBtn');
+        var disconnectBtn = document.getElementById('disconnectBtn');
+        var drawingIdInput = document.getElementById('drawingId');
+        var statusIndicator = document.getElementById('statusIndicator');
+        var currentDrawingDisplay = document.getElementById('currentDrawing');
+
+        if (connected) {
+            connectBtn.disabled = true;
+            disconnectBtn.disabled = false;
+            drawingIdInput.disabled = true;
+            statusIndicator.className = 'status-indicator connected';
+            statusIndicator.textContent = 'Connected';
+            currentDrawingDisplay.textContent = 'Drawing #' + currentDrawingId;
+        } else {
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            drawingIdInput.disabled = false;
+            statusIndicator.className = 'status-indicator disconnected';
+            statusIndicator.textContent = 'Disconnected';
+            currentDrawingDisplay.textContent = 'Not connected';
+        }
+    };
+
+    /**
+     * Clears the canvas completely.
+     */
+    var clearCanvas = function () {
+        var canvas = document.getElementById("canvas");
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    };
+
+    /**
+     * Establishes WebSocket connection and subscribes to a specific drawing topic.
+     * Uses dynamic topic names based on drawing identifier.
+     *
+     * @param {string} drawingId - The drawing identifier to subscribe to
+     */
+    var connectAndSubscribe = function (drawingId) {
+        console.info('Connecting to WebSocket for drawing: ' + drawingId);
+
+        if (stompClient !== null && isConnected) {
+            console.warn('Already connected. Disconnect first.');
+            return;
+        }
+
         var socket = new SockJS('/stompendpoint');
         stompClient = Stomp.over(socket);
 
         // Connect to WebSocket server
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
+            isConnected = true;
+            currentDrawingId = drawingId;
 
-            // Subscribe to /topic/newpoint to receive point events from other clients
-            stompClient.subscribe('/topic/newpoint', function (eventbody) {
-                console.log('Received point event:', eventbody.body);
+            // Update UI to show connected state
+            updateConnectionUI(true);
+
+            // Subscribe to dynamic topic: /topic/newpoint.{drawingId}
+            var topic = '/topic/newpoint.' + drawingId;
+            console.log('Subscribing to topic: ' + topic);
+
+            stompClient.subscribe(topic, function (eventbody) {
+                console.log('Received point event on ' + topic + ':', eventbody.body);
 
                 // Parse the received point and draw it on canvas
                 var theObject = JSON.parse(eventbody.body);
                 addPointToCanvas(theObject);
-
-                // Part II: No more alerts, just draw the point
             });
+
+            console.log('Successfully subscribed to drawing: ' + drawingId);
+        }, function(error) {
+            console.error('WebSocket connection error:', error);
+            isConnected = false;
+            updateConnectionUI(false);
+            alert('Failed to connect to WebSocket. Please try again.');
         });
     };
 
     return {
         /**
          * Initializes the application.
-         * Sets up WebSocket connection and canvas event handlers when page loads.
+         * Sets up canvas event handlers (connection is manual now).
          */
         init: function () {
-            var canvas = document.getElementById("canvas");
-            console.log("Initializing Collaborative Paint Application - Part II...");
-
-            // Establish WebSocket connection
-            connectAndSubscribe();
+            console.log("Initializing Collaborative Paint Application - Part III...");
 
             // Setup canvas mouse/pointer events
             setupCanvasEvents();
+
+            // Initialize UI state
+            updateConnectionUI(false);
         },
 
         /**
-         * Publishes a point to all connected clients via WebSocket.
-         * Now primarily used by canvas events, but kept for backward compatibility.
+         * Connects to a specific drawing by its identifier.
+         * Must be called before drawing can begin.
+         *
+         * @param {string} drawingId - The drawing identifier to connect to
+         */
+        connect: function (drawingId) {
+            if (!drawingId || drawingId.trim() === '') {
+                alert('Please enter a drawing number!');
+                return;
+            }
+
+            if (isConnected) {
+                alert('Already connected to drawing ' + currentDrawingId + '. Disconnect first.');
+                return;
+            }
+
+            // Clear canvas when connecting to new drawing
+            clearCanvas();
+
+            // Connect and subscribe to the specified drawing topic
+            connectAndSubscribe(drawingId.trim());
+        },
+
+        /**
+         * Publishes a point to the current drawing topic.
          *
          * @param {number} px - X coordinate
          * @param {number} py - Y coordinate
          */
         publishPoint: function (px, py) {
-            if (stompClient === null || !stompClient.connected) {
-                alert('Not connected to WebSocket. Please refresh the page.');
+            if (!isConnected || currentDrawingId === null) {
+                alert('Not connected to any drawing. Please connect first.');
                 return;
             }
 
             var pt = new Point(parseInt(px), parseInt(py));
-            console.info("Publishing point at " + JSON.stringify(pt));
+            console.info("Publishing point to drawing " + currentDrawingId + ": " + JSON.stringify(pt));
 
             // Draw point on local canvas
             addPointToCanvas(pt);
 
-            // Publish the point to /topic/newpoint so all subscribers receive it
-            stompClient.send("/topic/newpoint", {}, JSON.stringify(pt));
+            // Publish to dynamic topic
+            var topic = '/topic/newpoint.' + currentDrawingId;
+            stompClient.send(topic, {}, JSON.stringify(pt));
         },
 
         /**
-         * Disconnects from the WebSocket server.
+         * Disconnects from the current WebSocket connection.
          */
         disconnect: function () {
-            if (stompClient !== null) {
-                stompClient.disconnect();
+            if (stompClient !== null && isConnected) {
+                stompClient.disconnect(function() {
+                    console.log("Disconnected from drawing: " + currentDrawingId);
+                });
+                isConnected = false;
+                currentDrawingId = null;
+                updateConnectionUI(false);
+                clearCanvas();
             }
-            console.log("Disconnected from WebSocket");
         }
     };
 

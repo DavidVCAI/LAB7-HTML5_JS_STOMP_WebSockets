@@ -132,3 +132,137 @@ h1 {
         height: auto;
     }
 }
+
+/* Part III - Connection Panel Styles */
+
+.connection-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.connection-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.connection-controls label {
+    font-weight: bold;
+    color: white;
+    font-size: 16px;
+}
+
+.connection-controls input[type="number"] {
+    width: 120px;
+    padding: 10px;
+    border: 2px solid white;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.connection-controls button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#connectBtn {
+    background-color: #28a745;
+    color: white;
+}
+
+#connectBtn:hover:not(:disabled) {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#connectBtn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+#disconnectBtn {
+    background-color: #dc3545;
+    color: white;
+}
+
+#disconnectBtn:hover:not(:disabled) {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+#disconnectBtn:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.status-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+}
+
+.status-indicator {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-indicator.connected {
+    background-color: #28a745;
+    color: white;
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.disconnected {
+    background-color: #6c757d;
+    color: white;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.current-drawing {
+    background-color: white;
+    color: #667eea;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .connection-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .status-container {
+        margin-left: 0;
+        justify-content: space-between;
+    }
+}

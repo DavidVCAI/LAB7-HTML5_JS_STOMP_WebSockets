@@ -18,18 +18,42 @@
 </head>
 <body onload="app.init()">
     <div class="container">
-        <h1>Collaborative Paint - Part II</h1>
-        <p class="instructions">Click on the canvas to draw points. All connected clients will see your drawing in real-time!</p>
+        <h1>Collaborative Paint - Part III</h1>
+        <p class="instructions">
+            Enter a drawing number and click "Connect" to join a collaborative drawing session.
+            Multiple users can work on different drawings simultaneously!
+        </p>
+
+        <!-- Connection Controls -->
+        <div class="connection-panel">
+            <div class="connection-controls">
+                <label for="drawingId">Drawing #:</label>
+                <input id="drawingId" type="number" min="1" placeholder="e.g., 25, 80, 100" value="1"/>
+
+                <button id="connectBtn" onclick="app.connect($('#drawingId').val())">
+                    Connect
+                </button>
+
+                <button id="disconnectBtn" onclick="app.disconnect()" disabled>
+                    Disconnect
+                </button>
+
+                <div class="status-container">
+                    <span id="statusIndicator" class="status-indicator disconnected">Disconnected</span>
+                    <span id="currentDrawing" class="current-drawing">Not connected</span>
+                </div>
+            </div>
+        </div>
 
         <!-- Optional manual controls (kept for testing) -->
         <details class="controls-toggle">
-            <summary>Manual Input (Optional)</summary>
+            <summary>Manual Point Input (Optional)</summary>
             <div class="controls">
                 <label for="x">X:</label>
-                <input id="x" type="number" min="0" max="800" placeholder="X coordinate" value="100"/>
+                <input id="x" type="number" min="0" max="800" placeholder="X" value="100"/>
 
                 <label for="y">Y:</label>
-                <input id="y" type="number" min="0" max="600" placeholder="Y coordinate" value="100"/>
+                <input id="y" type="number" min="0" max="600" placeholder="Y" value="100"/>
 
                 <button onclick="app.publishPoint($('#x').val(),$('#y').val())">Send point</button>
             </div>

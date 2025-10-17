@@ -1,0 +1,23 @@
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.10.1:compile (default-compile) on project websockets-msbroker-example: Compilation failure: Compilation failure:
+[ERROR] /F:/ARSW/LABS/LAB7-HTML5_JS_STOMP_WebSockets/src/main/java/edu/eci/arsw/collabpaint/CollabPaintWebSocketConfig.java:[25,49] package org.springframework.messaging.simp.config does not exist
+[ERROR] /F:/ARSW/LABS/LAB7-HTML5_JS_STOMP_WebSockets/src/main/java/edu/eci/arsw/collabpaint/CollabPaintWebSocketConfig.java:[27,56] package org.springframework.web.socket.config.annotation does not exist
+[ERROR] /F:/ARSW/LABS/LAB7-HTML5_JS_STOMP_WebSockets/src/main/java/edu/eci/arsw/collabpaint/CollabPaintWebSocketConfig.java:[28,56] package org.springframework.web.socket.config.annotation does not exist
+[ERROR] /F:/ARSW/LABS/LAB7-HTML5_JS_STOMP_WebSockets/src/main/java/edu/eci/arsw/collabpaint/CollabPaintWebSocketConfig.java:[29,56] package org.springframework.web.socket.config.annotation does not exist
+[ERROR] /F:/ARSW/LABS/LAB7-HTML5_JS_STOMP_WebSockets/src/main/java/edu/eci/arsw/collabpaint/CollabPaintWebSocketConfig.java:[33,49] cannot find symbol
+[ERROR]   symbol: class AbstractWebSocketMessageBrokerConfigurer
+[ERROR] /F:/ARSW/LABS/LAB7-HTML5_JS_STOMP_WebSockets/src/main/java/edu/eci/arsw/collabpaint/CollabPaintWebSocketConfig.java:[32,2] cannot find symbol
+[ERROR]   symbol: class EnableWebSocketMessageBroker
+[ERROR] /F:/ARSW/LABS/LAB7-HTML5_JS_STOMP_WebSockets/src/main/java/edu/eci/arsw/collabpaint/CollabPaintWebSocketConfig.java:[36,40] cannot find symbol
+[ERROR]   symbol:   class MessageBrokerRegistry
+[ERROR]   location: class edu.eci.arsw.collabpaint.CollabPaintWebSocketConfig
+[ERROR] /F:/ARSW/LABS/LAB7-HTML5_JS_STOMP_WebSockets/src/main/java/edu/eci/arsw/collabpaint/CollabPaintWebSocketConfig.java:[42,40] cannot find symbol
+[ERROR]   symbol:   class StompEndpointRegistry
+[ERROR]   location: class edu.eci.arsw.collabpaint.CollabPaintWebSocketConfig
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+PS F:\ARSW\LABS\LAB7-HTML5_JS_STOMP_WebSockets>

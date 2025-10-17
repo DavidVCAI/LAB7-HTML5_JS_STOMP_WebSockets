@@ -1,48 +1,67 @@
-/*
- * Copyright (C) 2016 Pivotal Software, Inc.
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
 package edu.eci.arsw.collabpaint.model;
 
 /**
+ * Represents a point with x and y coordinates in a 2D plane.
+ * This class is used to transmit drawing coordinates through WebSocket connections.
  *
- * @author hcadavid
+ * @author Jesús Pinzón & David Velásquez
+ * @version 1.0
+ * @since 2025-10-17
  */
 public class Point {
-    int x,y;
+    
+    private int x;
+    private int y;
 
+    /**
+     * Default constructor required for JSON deserialization.
+     */
     public Point() {
     }
 
+    /**
+     * Constructs a Point with specified coordinates.
+     * 
+     * @param x the x coordinate
+     * @param y the y coordinate
+     */
     public Point(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
+    /**
+     * Gets the x coordinate.
+     * 
+     * @return the x coordinate
+     */
     public int getX() {
         return x;
     }
 
+    /**
+     * Sets the x coordinate.
+     * 
+     * @param x the x coordinate to set
+     */
     public void setX(int x) {
         this.x = x;
     }
 
+    /**
+     * Gets the y coordinate.
+     * 
+     * @return the y coordinate
+     */
     public int getY() {
         return y;
     }
 
+    /**
+     * Sets the y coordinate.
+     * 
+     * @param y the y coordinate to set
+     */
     public void setY(int y) {
         this.y = y;
     }
@@ -51,8 +70,4 @@ public class Point {
     public String toString() {
         return "Point{" + "x=" + x + ", y=" + y + '}';
     }
-    
-    
-    
-    
 }
